@@ -86,9 +86,11 @@
         <!--
        --><li><a href="/">首页</a></li><!--
      --><!--
-       --><li><a href="/archives/">归档</a></li><!--
+       --><li><a href="/about/">Qui som</a></li><!--
      --><!--
        --><li><a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE">大数据</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
      --><!--
        --><li><a target="_blank" rel="noopener" href="https://github.com/tang1990">GitHub</a></li><!--
      -->
@@ -239,9 +241,11 @@
          
           <li><a href="/">首页</a></li>
          
-          <li><a href="/archives/">归档</a></li>
+          <li><a href="/about/">Qui som</a></li>
          
           <li><a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE">大数据</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
          
           <li><a target="_blank" rel="noopener" href="https://github.com/tang1990">GitHub</a></li>
         
@@ -294,9 +298,11 @@
         <!--
        --><li><a href="/">首页</a></li><!--
      --><!--
-       --><li><a href="/archives/">归档</a></li><!--
+       --><li><a href="/about/">Qui som</a></li><!--
      --><!--
        --><li><a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE">大数据</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
      --><!--
        --><li><a target="_blank" rel="noopener" href="https://github.com/tang1990">GitHub</a></li><!--
      -->
@@ -328,7 +334,7 @@
   <script type="text/javascript">
   $(function() {
     // copy-btn HTML
-    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"In die Zwischenablage kopiert!\">";
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"انسخ!\">";
     btn += '<i class="far fa-clone"></i>';
     btn += '</span>'; 
     // mount it!
@@ -339,7 +345,7 @@
       }
     });
     clip.on('success', function(e) {
-      e.trigger.setAttribute('aria-label', "Kopiert!");
+      e.trigger.setAttribute('aria-label', "تم النسخ!");
       e.clearSelection();
     })
   })
