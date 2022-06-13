@@ -38,13 +38,6 @@
 
   
   <url>
-    <loc>http://tang1990@github.io/tags/ds/</loc>
-    <lastmod>2022-06-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>http://tang1990@github.io/tags/linux/</loc>
     <lastmod>2022-06-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -72,17 +65,24 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>http://tang1990@github.io/tags/ds/</loc>
+    <lastmod>2022-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
-    <loc>http://tang1990@github.io/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/</loc>
+    <loc>http://tang1990@github.io/categories/linux/</loc>
     <lastmod>2022-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>http://tang1990@github.io/categories/linux/</loc>
+    <loc>http://tang1990@github.io/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/</loc>
     <lastmod>2022-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
