@@ -6,15 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="关于DS调度执行hive脚本吊死问题的分析及处理问题现象在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。 在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态第三次运行时,脚本长期不结束执行。查看任务日志，发现实际任务早已执行完成。 问题分析异常点分析对比前后三次的任务日志。发现前两次的任务执行时,hive自动均为任务分配了一">
+    <meta name="description" content="关于DS调度执行hive脚本吊死问题的分析及处理 问题现象 在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。 在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态第三次运行时,脚本长期不结束执行。查看任务日志，发现实际任务早已执行完成。 问题分析 异常点分析 对比前后三次的任务日志。发现前两次的任务执行时,hive自动均为任务">
 <meta property="og:type" content="article">
 <meta property="og:title" content="关于DS调度执行hive脚本吊死问题的分析及处理">
 <meta property="og:url" content="http://tang1990@github.io/2022/06/10/%E5%85%B3%E4%BA%8EDS%E8%B0%83%E5%BA%A6%E6%89%A7%E8%A1%8Chive%E8%84%9A%E6%9C%AC%E5%90%8A%E6%AD%BB%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%84%E7%90%86/index.html">
 <meta property="og:site_name" content="这是小黑">
-<meta property="og:description" content="关于DS调度执行hive脚本吊死问题的分析及处理问题现象在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。 在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态第三次运行时,脚本长期不结束执行。查看任务日志，发现实际任务早已执行完成。 问题分析异常点分析对比前后三次的任务日志。发现前两次的任务执行时,hive自动均为任务分配了一">
+<meta property="og:description" content="关于DS调度执行hive脚本吊死问题的分析及处理 问题现象 在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。 在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态第三次运行时,脚本长期不结束执行。查看任务日志，发现实际任务早已执行完成。 问题分析 异常点分析 对比前后三次的任务日志。发现前两次的任务执行时,hive自动均为任务">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102212848.png?token=ADEGZTTXN5VM2NGMGSDZ7C3CUNIY2">
-<meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102214988.png?token=ADEGZTQEZ55V7HTLHKH5VIDCUNI6W">
 <meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216001.png?token=ADEGZTT6NKVORRSQMUL5HJTCUNJGE">
 <meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216628.png?token=ADEGZTSI5MP6MBOSVFTOZZTCUNJJC">
 <meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102217178.png?token=ADEGZTV6OHWS2OHQRGUCLOTCUNJMM">
@@ -25,11 +23,11 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102224280.png?token=ADEGZTW4Q2RSRQSPBEDP3L3CUNKGK">
 <meta property="og:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102225527.png?token=ADEGZTWIQBWIVUFFBPRQLB3CUNKII">
 <meta property="article:published_time" content="2022-06-10T14:05:38.000Z">
-<meta property="article:modified_time" content="2022-06-10T15:04:08.098Z">
+<meta property="article:modified_time" content="2022-06-13T13:12:39.304Z">
 <meta property="article:author" content="tang1990">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102212848.png?token=ADEGZTTXN5VM2NGMGSDZ7C3CUNIY2">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216001.png?token=ADEGZTT6NKVORRSQMUL5HJTCUNJGE">
     
     
       
@@ -129,7 +127,7 @@
 
     </div>
     <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EDS%E8%B0%83%E5%BA%A6%E6%89%A7%E8%A1%8Chive%E8%84%9A%E6%9C%AC%E5%90%8A%E6%AD%BB%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%84%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">关于DS调度执行hive脚本吊死问题的分析及处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-number">1.1.</span> <span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">问题分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">异常点分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.2.2.</span> <span class="toc-text">故障复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">日志分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">1.3.</span> <span class="toc-text">问题解决</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">关于DS调度执行hive脚本吊死问题的分析及处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-number">1.1.</span> <span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">问题分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">异常点分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.2.2.</span> <span class="toc-text">故障复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">日志分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">1.3.</span> <span class="toc-text">问题解决</span></a></li></ol></li></ol>
     </div>
   </span>
 </div>
@@ -178,56 +176,81 @@
   
 
   <div class="content" itemprop="articleBody">
-    <h1 id="关于DS调度执行hive脚本吊死问题的分析及处理"><a href="#关于DS调度执行hive脚本吊死问题的分析及处理" class="headerlink" title="关于DS调度执行hive脚本吊死问题的分析及处理"></a>关于DS调度执行hive脚本吊死问题的分析及处理</h1><h2 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h2><p>在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。</p>
-<p>在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态<br>第三次运行时,脚本长期不结束执行。<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102212848.png?token=ADEGZTTXN5VM2NGMGSDZ7C3CUNIY2" alt="Img"><br>查看任务日志，发现实际任务早已执行完成。<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102214988.png?token=ADEGZTQEZ55V7HTLHKH5VIDCUNI6W" alt="Img"></p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><h3 id="异常点分析"><a href="#异常点分析" class="headerlink" title="异常点分析"></a>异常点分析</h3><p>对比前后三次的任务日志。<br>发现前两次的任务执行时,hive自动均为任务分配了一个APPLICATION,<br>例如：下图为任务第二次执行的日志<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216001.png?token=ADEGZTT6NKVORRSQMUL5HJTCUNJGE" alt="Img"><br>程序检测到了该任务分配了一个application,其ID为<code>application_1651842678755_885090</code></p>
-<p>程序在9:46:00时检测到该application的状态结束，与任务流的结束时间一致<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216628.png?token=ADEGZTSI5MP6MBOSVFTOZZTCUNJJC" alt="Img"></p>
-<p>而第三次的日志中，hive分配了两个application<br>分别为</p>
-<ul>
-<li><code>application_1651842678755_885385</code></li>
-<li><code>application_1651842678755_885325</code><br>怀疑其中某个application的任务状态存在问题导致任务一直无法结束</li>
+    <h1>关于DS调度执行hive脚本吊死问题的分析及处理</h1>
+<h2 id="问题现象">问题现象</h2>
+<p>在DS执行hive脚本时,经常会出现hive任务实际执行完成，但对应的工作任务一致处于执行中状态无法结束的问题。</p>
+<p>在前两次运行,脚本均在三分钟内执行完毕，并正常识别到结束状态第三次运行时,脚本长期不结束执行。查看任务日志，发现实际任务早已执行完成。</p>
+<h2 id="问题分析">问题分析</h2>
+<h3 id="异常点分析">异常点分析</h3>
+<p>对比前后三次的任务日志。发现前两次的任务执行时,hive自动均为任务分配了一个APPLICATION,<br>
+例如：下图为任务第二次执行的日志<img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216001.png?token=ADEGZTT6NKVORRSQMUL5HJTCUNJGE" alt="Img"><br>
+程序检测到了该任务分配了一个application,其ID为<code>application_1651842678755_885090</code></p>
+<p>程序在9:46:00时检测到该application的状态结束，与任务流的结束时间一致<br>
+<img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102216628.png?token=ADEGZTSI5MP6MBOSVFTOZZTCUNJJC" alt="Img"></p>
+<p>而第三次的日志中，hive分配了两个application<br>
+分别为</p>
+<ul class="lvl-0">
+<li class="lvl-2">
+<p><code>application_1651842678755_885385</code></p>
+</li>
+<li class="lvl-2">
+<p><code>application_1651842678755_885325</code><br>
+怀疑其中某个application的任务状态存在问题导致任务一直无法结束</p>
+</li>
 </ul>
-<h3 id="故障复现"><a href="#故障复现" class="headerlink" title="故障复现"></a>故障复现</h3><p>重跑任务复现现象：<br>2022/5/26 10:24:24重跑任务<br>十分钟后发现该任务仍未结束<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102217178.png?token=ADEGZTV6OHWS2OHQRGUCLOTCUNJMM" alt="Img"></p>
+<h3 id="故障复现">故障复现</h3>
+<p>重跑任务复现现象：<br>
+2022/5/26 10:24:24重跑任务十分钟后发现该任务仍未结束<br>
+<img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102217178.png?token=ADEGZTV6OHWS2OHQRGUCLOTCUNJMM" alt="Img"></p>
 <p>查看任务日志，发现hive脚本实际早已执行完成，日志中显示执行已completed且hive已经关闭了客户端链接，说明脚本实际早已执行完成：</p>
 <p><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102218441.png?token=ADEGZTW2GKS7KFFUADMRWZDCUNJOS" alt="Img"></p>
-<h3 id="日志分析"><a href="#日志分析" class="headerlink" title="日志分析"></a>日志分析</h3><p>继续查看发现该任务同样生成两个application：</p>
-<ul>
-<li>application_1651842678755_887507</li>
-<li>application_1651842678755_884350</li>
+<h3 id="日志分析">日志分析</h3>
+<p>继续查看发现该任务同样生成两个application：</p>
+<ul class="lvl-0">
+<li class="lvl-2">
+<p>application_1651842678755_887507</p>
+</li>
+<li class="lvl-2">
+<p>application_1651842678755_884350</p>
+</li>
 </ul>
 <p>其中application_1651842678755_887507的状态很快进入finish状态</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn  application -status application_1651842678755_887507</span><br></pre></td></tr></table></figure>
-
 <p><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102219548.png?token=ADEGZTQ3SZYHSS26WVIYXATCUNJUO" alt="Img"></p>
-<p>而application_1651842678755_884350的状态一直为running,且显示该任务的执行队列为default队列而非指定的user_yddsj队列</p>
+<p>而application_1651842678755_884350的状态一直为running,且显示该任务的执行队列为default队列而非指定的专用队列</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn  application -status application_1651842678755_884350</span><br></pre></td></tr></table></figure>
 <p><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102222620.png?token=ADEGZTR67GA3XOC333KNMNLCUNJ6S" alt="Img"></p>
-<p>检查脚本，脚本中已在sql运行前加入了指定队列的信息，脚本对应的任务应该都在user_yddsj队列提交：</p>
+<p>检查脚本，脚本中已在sql运行前加入了指定队列的信息，脚本对应的任务应该都在专用队列提交：</p>
 <p><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102223670.png?token=ADEGZTUFJJR2QEF5C3E6Z6LCUNKDM" alt="Img"></p>
-<p>从日志分析中可以发现两个明显的异常：<br>::: danger </p>
-<ul>
-<li>在指定了队列的前提下，为什么会有application被放在default队列执行</li>
-<li>在hive客户端都已经执行完毕关闭链接的情况下，为什么会有application一直处于running的状态，而不转变为finish状态<br>:::</li>
+<p>从日志分析中可以发现两个明显的异常：</p>
+<div class="danger">
+<ul class="lvl-1">
+<li class="lvl-2">
+<p>在指定了队列的前提下，为什么会有application被放在default队列执行</p>
+</li>
+<li class="lvl-2">
+<p>在hive客户端都已经执行完毕关闭链接的情况下，为什么会有application一直处于running的状态，而不转变为finish状态</p>
+</li>
 </ul>
-<h2 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h2><p>与HDP集群维护部门沟通，对方反馈如下：</p>
+</div>
+<h2 id="问题解决">问题解决</h2>
+<p>与HDP集群维护部门沟通，对方反馈如下：</p>
 <blockquote>
 <p>该现象由于集群负载过高引起，容器无法获得足够的资源导致状态一直卡在running。 而使用default队列是因为任务拆分多个application本身&gt; 就是由内部租户申请资源的，所以在default队列。</p>
 </blockquote>
-<p>个人对该说法存疑，但是由于我方并没有进一步排查问题的权限，只能想办法从工具层面规避该问题。<br>从现象来看，DolphinScheduler(简称DS)工具在执行shell脚本后，会搜索脚本中是否存在applicationid,如果由则会取yarn中检查所有application的状态，当所有application的状态均为finish时，DS才认为脚本全部执行成空。<br>实际上我们仅通过HIVE -E 本身反馈的状态值来判断脚本是否执行成功，而不需要检查application的状态。<br>在DS的GITHUB中查询issue，发现类似问题解决方案：</p>
+<p>个人对该说法存疑，但是由于我方并没有进一步排查问题的权限，只能想办法从工具层面规避该问题。从现象来看，DolphinScheduler(简称DS)工具在执行shell脚本后，会搜索脚本中是否存在applicationid,如果由则会取yarn中检查所有application的状态，当所有application的状态均为finish时，DS才认为脚本全部执行成空。实际上我们仅通过HIVE -E 本身反馈的状态值来判断脚本是否执行成功，而不需要检查application的状态。在DS的GITHUB中查询issue，发现类似问题解决方案：</p>
 <p><a target="_blank" rel="noopener" href="https://github.com/apache/dolphinscheduler/issues/5564">[Improvement][Worker] Do not verify the status of yarn in ShellCommandExecutor #5564</a></p>
-<p>依据issue中的描述，修改<code>dolphinscheduler/server/worker/task/AbstractCommandExecutor.java</code>组件代码<br>去除以下内容:</p>
+<p>依据issue中的描述，修改<code>dolphinscheduler/server/worker/task/AbstractCommandExecutor.java</code>组件代码去除以下内容:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (status) &#123; </span><br><span class="line">    <span class="comment">// set appIds </span></span><br><span class="line">    List&lt;String&gt; appIds = getAppIds(taskExecutionContext.getLogPath()); </span><br><span class="line">    result.setAppIds(String.join(Constants.COMMA, appIds)); </span><br><span class="line"> </span><br><span class="line">    <span class="comment">// SHELL task state </span></span><br><span class="line">    result.setExitStatusCode(process.exitValue()); </span><br><span class="line"> </span><br><span class="line">    <span class="comment">// if yarn task , yarn state is final state </span></span><br><span class="line">    <span class="comment">// 删除下面的内容</span></span><br><span class="line">    <span class="keyword">if</span> (process.exitValue() == <span class="number">0</span>) &#123; </span><br><span class="line">        result.setExitStatusCode(isSuccessOfYarnState(appIds) ? EXIT_CODE_SUCCESS : EXIT_CODE_FAILURE); </span><br></pre></td></tr></table></figure>
-
 <p>同时修改以下内容避免空指针问题:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> (applicationStatus.equals(ExecutionStatus.FAILURE) </span><br><span class="line">     || applicationStatus.equals(ExecutionStatus.KILL)) &#123; </span><br><span class="line">     <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line"> &#125; </span><br><span class="line">  </span><br><span class="line"> <span class="keyword">if</span> (applicationStatus.equals(ExecutionStatus.SUCCESS)) &#123; </span><br><span class="line">     <span class="keyword">break</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>修改为：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> (ExecutionStatus.SUCCESS.equals(applicationStatus) &#123; </span><br><span class="line">     pass; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
 <p>将程序重新打包后替换原来的<code>dolphinscheduler-server-1.3.8.jar</code></p>
 <p>重启DS后重跑任务，两次均正常结束，</p>
 <p><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102224280.png?token=ADEGZTW4Q2RSRQSPBEDP3L3CUNKGK" alt="Img"></p>
-<p>调整sql引出语法错误，检测出错时任务状态是否正常<br>测试通过<br><img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102225527.png?token=ADEGZTWIQBWIVUFFBPRQLB3CUNKII" alt="Img"></p>
+<p>调整sql引出语法错误，检测出错时任务状态是否正常测试通过<br>
+<img src="https://raw.githubusercontent.com/tang1990/mypic/main/202206102225527.png?token=ADEGZTWIQBWIVUFFBPRQLB3CUNKII" alt="Img"></p>
 
   </div>
 </article>
@@ -255,7 +278,7 @@
     </div>
 
     <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EDS%E8%B0%83%E5%BA%A6%E6%89%A7%E8%A1%8Chive%E8%84%9A%E6%9C%AC%E5%90%8A%E6%AD%BB%E9%97%AE%E9%A2%98%E7%9A%84%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%84%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">关于DS调度执行hive脚本吊死问题的分析及处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-number">1.1.</span> <span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">问题分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">异常点分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.2.2.</span> <span class="toc-text">故障复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">日志分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">1.3.</span> <span class="toc-text">问题解决</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">关于DS调度执行hive脚本吊死问题的分析及处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-number">1.1.</span> <span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">1.2.</span> <span class="toc-text">问题分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E7%82%B9%E5%88%86%E6%9E%90"><span class="toc-number">1.2.1.</span> <span class="toc-text">异常点分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%85%E9%9A%9C%E5%A4%8D%E7%8E%B0"><span class="toc-number">1.2.2.</span> <span class="toc-text">故障复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">日志分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">1.3.</span> <span class="toc-text">问题解决</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
